@@ -1,0 +1,18 @@
+@(searchForm: Form[model.Define])(implicit messages: Messages)
+@import helper._
+
+@main("Dictionary") {
+<div ng-app>
+    <h1>Dictionary Lookup Service</h1>
+
+    @helper.form(action = routes.Application.call("word")){
+        @helper.inputText(searchForm("word"))
+
+    }
+
+</div>
+<form action="/query" method="get">
+    <button>View Saved Words</button>
+</form>
+
+}

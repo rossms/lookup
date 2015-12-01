@@ -1,0 +1,22 @@
+@(wordDefs: model.WordDefinition)
+
+@main("Dictionary") {
+
+<div ng-app>
+    <h1>Results</h1><form action="/" method="get">
+    <button>Search Again</button>
+    </form>
+</div>
+
+@wordDefs.word
+<br/>
+@for(Definition <- wordDefs.definitions.iterator){
+
+@Definition.wordDefinition
+<br/>
+@Definition.dictionary.name
+<br/>
+<br/>
+    }
+
+}
