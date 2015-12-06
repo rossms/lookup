@@ -6,6 +6,7 @@
 GET     /                           controllers.Application.index
 GET     /call                       controllers.Application.call(word: String)
 GET     /query                      controllers.Application.listDocs
+GET     /db                         controllers.Application.findIt
 
 
 # Map static resources from the /public folder to the /assets URL path

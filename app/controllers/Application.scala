@@ -3,12 +3,15 @@ package controllers
 import java.util.concurrent.TimeoutException
 
 import model._
+import org.joda.time.DateTime
 import play.api.data.Forms._
 import play.api.data._
 import play.api.libs.iteratee.Iteratee
 import reactivemongo.api.{MongoConnection, MongoDriver}
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson._
+import views.html.helper.input
+
 
 
 import scala.collection.mutable.ListBuffer
@@ -141,10 +144,11 @@ class Application extends Controller {
       find(query, filter).
       cursor[BSONDocument].
       collect[List]()
-
+    var size = 0
     futureList.map { list =>
       list.foreach { doc =>
-        println(s"found document: ${BSONDocument pretty doc}")
+        println(s"i found a document: ${BSONDocument pretty doc}")
+        size +=1
       }
     }
 
@@ -154,5 +158,109 @@ class Application extends Controller {
   Ok(views.html.query.render(wordList))
   }
 
+  object Database {
 
+    val collection = connect()
+
+
+    def connect(): BSONCollection = {
+
+      val driver = new MongoDriver
+      val connection = driver.connection(List("localhost:27017"))
+
+      val db = connection("define")
+      db.collection("words")
+    }
+
+    def findAllWords(): Future[List[BSONDocument]] = {
+      val query = BSONDocument()
+      val filter = BSONDocument()
+
+      // which results in a Future[List[BSONDocument]]
+      val r = Database.collection
+      .find(query, filter)
+      .cursor[BSONDocument]
+      .collect[List]()
+
+      return r
+
+    }
+
+    def findWord(ticker: String) : Future[Option[BSONDocument]] = {
+      val query = BSONDocument("user" -> "Ross")
+
+      val bson = Database.collection
+        .find(query)
+        .one
+
+
+
+      return bson
+    }
+
+
+
+  }
+
+  def findIt() = Action.async {
+    val input = Database.findAllWords()
+    //listBuilder(input)
+
+    //converter(input)
+      input.map(result =>
+
+        Ok(views.html.test.render(PersonReader.read(result.head)))
+      )
+  }
+
+  object PersonReader extends BSONDocumentReader[Define] {
+
+    def read(doc: BSONDocument) =  {
+
+      Define(doc.getAs[BSONString]("user").get.toString)
+
+    }
+
+  }
+
+
+  //  def converter (input: Future[List[BSONDocument]]) ={
+//    StoredDoc(
+//      input.getAs[BSONObjectID]("_id"),
+//      input.getAs[BSONString]("title").get.value,
+//      input.getAs[BSONString]("content").get.value)
+//  }
+
+
+
+//  implicit object ArticleBSONReader extends BSONReader[StoredDoc] {
+//    def fromBSON(document: BSONDocument) :StoredDoc = {
+//      val doc = document.toTraversable
+//      StoredDoc(
+//        doc.getAs[BSONObjectID]("_id"),
+//        doc.getAs[BSONString]("title").get.value,
+//        doc.getAs[BSONString]("content").get.value)
+//    }
+//  }
+//  def listBuilder(input: Future[List[BSONDocument]]) = {
+//
+//
+//    val sb = new java.lang.StringBuilder
+//
+//    input.map { list =>
+//      list.foreach { doc =>
+//        println(s"found documentttt: ${BSONDocument pretty doc}")
+//        val wordList = doc.getAs[List[String]]("words")
+//        for(word <- wordList){
+//          sb.append(word.toString())
+//          appendWord(word.toString())
+//        }
+//        println(s"testtet:" + sb)
+//      }
+//    }
+//
+//  }
+//  def appendWord(word: String): Unit ={
+//
+//  }
 }
