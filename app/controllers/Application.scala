@@ -198,6 +198,14 @@ class Application extends Controller {
       return bson
     }
 
+    def addWord(word: String): Unit ={
+      val selector = BSONDocument("user" -> "Ross")
+      val modifier = BSONDocument(
+        "$set" -> BSONDocument(
+        "words" -> word
+        ))
+      collection.update(selector, modifier)
+    }
 
 
   }
@@ -212,12 +220,23 @@ class Application extends Controller {
         Ok(views.html.test.render(PersonReader.read(result.head)))
       )
   }
+  def add(word:String)= Action.async {
+    Database.addWord(word)
+    val input = Database.findAllWords()
+    //listBuilder(input)
 
-  object PersonReader extends BSONDocumentReader[Define] {
+    //converter(input)
+    input.map(result =>
+
+      Ok(views.html.test.render(PersonReader.read(result.head)))
+    )
+  }
+
+  object PersonReader extends BSONDocumentReader[SavedWords] {
 
     def read(doc: BSONDocument) =  {
 
-      Define(doc.getAs[BSONString]("user").get.toString)
+      SavedWords(doc.getAs[String]("user").get.toString, doc.getAs[List[String]]("words").toList.flatten)
 
     }
 

@@ -8,6 +8,14 @@
     </form>
 </div>
 
+<form action="/add" method="get">
+    <input type="text" name="word" value="@wordDefs.word">
+    <input type="submit" value="Add">
+
+</form>
+
+<br/>
+<br/>
 @wordDefs.word
 <br/>
 @for(Definition <- wordDefs.definitions.iterator){

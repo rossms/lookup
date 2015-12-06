@@ -1,10 +1,18 @@
-@(content: model.Define)
+@(content: model.SavedWords)
 <div ng-app>
     <h1>Saved</h1>
 
-
-@content
-
-
+<h4>User:</h4>
+@content.user
+    <br/>
+    <h4>Saved Words:</h4>
+    @for(word <- content.words.iterator){
+    <a href="@routes.Application.call(word)">@word</a>
+    <br/>
+    }
     <br/>
 </div>
+<br/>
+<form action="/" method="get">
+    <button>Home</button>
+</form>
